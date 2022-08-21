@@ -1,0 +1,26 @@
+{
+  "name": "@spaceboy.cz/jsonx",
+  "version": "0.0.1",
+  "description": "Command line JSONX to JSON format file converter",
+  "main": "bin/index.js",
+  "scripts": {
+    "test": "echo \"No test spcified\" && exit 1"
+  },
+  "keywords": [
+    "jsonx",
+    "json",
+    "cli",
+    "file",
+    "format",
+    "convert"
+  ],
+  "author": "Spaceboy <jiri.votocek@centrum.cz>",
+  "license": "MIT",
+  "bin": {
+    "jsonx": "bin/index.js"
+  },
+  "dependencies": {
+    "yargs": "13.2"
+  },
+  "devDependencies": {}
+}
