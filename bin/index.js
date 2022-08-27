@@ -123,11 +123,11 @@ async function processFile() {
 
 	// Choose EOL type:
 	var eol = "\n";
-	if (options.crlf) {
-		eol = "\r\n";
-	}
 	if (options.lfcr) {
 		eol = "\n\r";
+	}
+	if (options.crlf) {
+		eol = "\r\n";
 	}
 
 	// Replace comments:
