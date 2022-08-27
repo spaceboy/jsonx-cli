@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// Declare options:
 const yargs = require("yargs");
 const options = yargs
 	.usage("Usage: -i <inputfile> [-o <outputfile>] [-w] [-r --reformat2 --reformat-tab] [--crlf] [-b]")
@@ -37,6 +38,15 @@ const options = yargs
 		"describe": "Uses CRLF as EOL"
 	})
 	.boolean("crlf")
+	.option("lfcr", {
+		"describe": "Uses LFCR as EOL"
+	})
+	.boolean("lfcr")
+	.option("display", {
+		"alias": "d",
+		"describe": "Just displays result; doesn't write output file"
+	})
+	.boolean("display")
 	.option("b", {
 		"alias": "blank",
 		"describe": "Adds one blank line at end of file"
@@ -50,13 +60,16 @@ const readline = require('readline');
 
 var outputfile = (options.outputfile ?? options.inputfile.replace(/\.jsonx$/, ".json"));
 
-try {
-	if (fs.realpathSync.native(options.inputfile) === fs.realpathSync.native(outputfile)) {
-		return console.log("Input and output files are identical.");
-	}
-} catch (err) {
+// Check source and target files:
+if (
+	!options.display
+	&& fs.realpathSync.native(options.inputfile) === fs.realpathSync.native(outputfile)
+) {
+	console.log("Input and output files are identical.");
+	process.exit(2);
 }
 
+// Check source file:
 try {
 	fs.accessSync(options.inputfile, fs.constants.R_OK);
 	var stats = fs.lstatSync(options.inputfile);
@@ -70,49 +83,69 @@ catch (err) {
 	process.exit(2);
 }
 
-try {
-	fs.accessSync(outputfile, fs.constants.W_OK);
-	var stats = fs.lstatSync(options.inputfile);
-	if (!stats.isFile()) {
-		console.log(`Target is not file or is not writable (${outputfile}).`);
+// Check target file:
+if (!options.display) {
+	try {
+		fs.accessSync(outputfile, fs.constants.W_OK);
+		var stats = fs.lstatSync(options.inputfile);
+		if (!stats.isFile()) {
+			console.log(`Target is not file or is not writable (${outputfile}).`);
+			process.exit(2);
+		}
+		if (!options.overwrite) {
+			console.log(`Output file already exists (${outputfile}). Run command again with overwrite enabled.`);
+			process.exit(2);
+		}
+	} catch (err) {
+		console.log("An error occcured.");
 		process.exit(2);
 	}
-	if (!options.overwrite) {
-		console.log(`Output file already exists (${outputfile}). Run command again with overwrite enabled.`);
-		process.exit(2);
-	}
-} catch (err) {
 }
 
+// Write output to file:
 function writeFile (content) {
 	try {
 		fs.writeFileSync(outputfile, content);
 	} catch (err) {
 		console.log(`Error writing file (${outputfile}).`);
-		process.exit(1);
+		process.exit(2);
 	}
 	console.log("Done.");
 }
 
+// Process source file:
 async function processFile() {
 	var out = [];
 	const fileStream = fs.createReadStream(options.inputfile);
 	const rl = readline.createInterface({
 		input: fileStream
 	});
-	let crlf = (options.crlf ? "\r\n" : "\n");
+
+	// Choose EOL type:
+	var eol = "\n";
+	if (options.crlf) {
+		eol = "\r\n";
+	}
+	if (options.lfcr) {
+		eol = "\n\r";
+	}
 
 	// Replace comments:
 	for await (const line of rl) {
-		//var l = line.replace(/#(?=([^\"\\]*(\\.|\"([^\"\\]*\\.)*[^\"\\]*\"))*[^\"]*$).+$/, "");
-		var l = line.replace(/\s*#(?=([^(\"|')\\]*(\\.|(\"|')([^(\"|')\\]*\\.)*[^(\"|')\\]*(\"|')))*[^(\"|')]*$).+$/, "");
+		//var l = line.replace(/\s*(#|\/\/)(?=([^(\"|')\\]*(\\.|(\"|')([^(\"|')\\]*\\.)*[^(\"|')\\]*(\"|')))*[^(\"|')]*$).*$/, "");
+		var l = line
+			.replace(/^\s*(#|\/\/)(.)*$/, "")
+			.replace(/\s*(#|\/\/)(?=([^(\"|')\\]*(\\.|(\"|')([^(\"|')\\]*\\.)*[^(\"|')\\]*(\"|')))*[^(\"|')]*$).*$/, "");
 		if (l.trim()) {
 			out.push(l);
 		}
 	}
 
+	// Join JSON:
+	var json = out.join(eol);
+
 	// Replace trailing commas:
-	var json = out.join(crlf).replace(/\,(?!\s*?[\{\[\"\'\w])/gm, "");
+	json = json.replace(/\,(?!\s*?[\{\[\"\'\w])/gm, "");
 
 	// Reformat output:
 	try {
@@ -134,18 +167,25 @@ async function processFile() {
 	}
 
 	// Use proper EOL:
-	if (options.crlf) {
-		json = json.replaceAll("\n", crlf);
+	if (options.crlf || options.lfcr) {
+		json = json.replaceAll("\n", eol);
 	}
 
 	// Add blank line:
 	if (options.blank) {
-		json = json + crlf;
+		json = json + eol;
 	}
 
-	// Write result:
-	writeFile(json);
+	// Show result (write result into output file or just display it):
+	if (options.display) {
+		console.log(json);
+	} else {
+		writeFile(json);
+	}
 }
 
-console.log(`Converting ${options.inputfile} to ${outputfile}.`);
+// Start conversion:
+if (!options.display) {
+	console.log(`Converting ${options.inputfile} to ${outputfile}.`);
+}
 processFile();

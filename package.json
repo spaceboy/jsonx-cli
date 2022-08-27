@@ -1,6 +1,6 @@
 {
   "name": "@spaceboy.cz/jsonx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Command line JSONX to JSON format file converter",
   "main": "bin/index.js",
   "scripts": {
@@ -22,5 +22,12 @@
   "dependencies": {
     "yargs": "13.2"
   },
-  "devDependencies": {}
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spaceboy/jsonx-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/spaceboy/jsonx-cli/issues"
+  },
+  "homepage": "https://github.com/spaceboy/jsonx-cli#readme"
 }
