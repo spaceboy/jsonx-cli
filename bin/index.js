@@ -4,28 +4,38 @@
 const yargs = require("yargs");
 const options = yargs
 	.usage("Usage: -i <inputfile> [-o <outputfile>] [-w] [-r --reformat2 --reformat-tab] [--crlf] [-b]")
-	.option("i", {
-		"alias": "inputfile",
+	.option("inputfile", {
+		"alias": "i",
 		"describe": "Input (.jsonx) file",
 		"type": "string",
 		"demandOption": true
 	})
-	.option("o", {
-		"alias": "outputfile",
+	.option("outputfile", {
+		"alias": "o",
 		"describe": "Output (.json) file",
 		"type": "string",
 		"demandOption": false
 	})
-	.option("w", {
-		"alias": "overwrite",
+	.option("overwrite", {
+		"alias": "w",
 		"describe": "Allows overwrite existing <outputfile>"
 	})
-	.boolean("w")
-	.option("r", {
-		"alias": "reformat",
+	.boolean("overwrite")
+	.option("display", {
+		"alias": "d",
+		"describe": "Just displays result; doesn't write output file"
+	})
+	.boolean("display")
+	.option("blank", {
+		"alias": "b",
+		"describe": "Adds one blank line at end of file"
+	})
+	.boolean("blank")
+	.option("reformat", {
+		"alias": "r",
 		"describe": "Reformats output (.json) file (decodes JSON and encodes it again w/ 4 spaces indentation)",
 	})
-	.boolean("r")
+	.boolean("reformat")
 	.option("reformat2", {
 		"describe": "Reformats output (.json) file (decodes JSON and encodes it again w/ 2 spaces indentation)",
 	})
@@ -42,16 +52,6 @@ const options = yargs
 		"describe": "Uses LFCR as EOL"
 	})
 	.boolean("lfcr")
-	.option("display", {
-		"alias": "d",
-		"describe": "Just displays result; doesn't write output file"
-	})
-	.boolean("display")
-	.option("b", {
-		"alias": "blank",
-		"describe": "Adds one blank line at end of file"
-	})
-	.boolean("b")
 	.help()
 	.argv;
 

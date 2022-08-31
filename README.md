@@ -107,6 +107,9 @@ Since then, `jsonx` should be globally available on your computer.
 - ### **--blank (-b)**
   Adds blank line to end of document (required by some systems).
 
+- ### **--display (-d)**
+  Just shows content of converted file on display; doesn't write in output file
+
 
 ### <a name="head23"></a> **2.3 JSONX command line error codes**
 | Code | Description |
