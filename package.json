@@ -1,6 +1,6 @@
 {
   "name": "@spaceboy.cz/jsonx",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Command line JSONX to JSON format file converter",
   "main": "bin/index.js",
   "scripts": {

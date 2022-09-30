@@ -110,6 +110,9 @@ Since then, `jsonx` should be globally available on your computer.
 - ### **--display (-d)**
   Just shows content of converted file on display; doesn't write in output file
 
+- ### **--silent (-s)**
+  Doesn't write non necessary output. Just shows converted file (when --display option is set) or nothing.
+
 
 ### <a name="head23"></a> **2.3 JSONX command line error codes**
 | Code | Description |
